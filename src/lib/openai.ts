@@ -185,6 +185,53 @@ Réponds UNIQUEMENT au format JSON :
 }
 
 /**
+ * Évalue les compétences d'un candidat pour le Talenti Passport
+ * Retourne les niveaux de langue et un score global
+ */
+export async function assessPassport(
+  skills: string,
+  french_level: string,
+  english_level: string
+): Promise<{
+  french_level: string;
+  english_level: string;
+  skills_verified: string;
+  overall_score: number;
+  feedback: string;
+}> {
+  const prompt = `Tu es un expert en évaluation de compétences professionnelles. Évalue le profil suivant pour le Talenti Passport.
+
+Compétences déclarées : ${skills}
+Niveau de français déclaré : ${french_level}
+Niveau d'anglais déclaré : ${english_level}
+
+Évalue et valide les informations fournies. Attribue un score global sur 100.
+
+Réponds UNIQUEMENT au format JSON :
+{"french_level": "B2", "english_level": "A2", "skills_verified": "JavaScript, React, Node.js", "overall_score": 75, "feedback": "Commentaire constructif en français..."}`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+      response_format: { type: "json_object" },
+    });
+
+    const content = response.choices[0]?.message?.content || "{}";
+    return JSON.parse(content);
+  } catch {
+    return {
+      french_level,
+      english_level,
+      skills_verified: skills,
+      overall_score: 50,
+      feedback: "Erreur lors de l'évaluation du passeport.",
+    };
+  }
+}
+
+/**
  * Génère une question pour le Talenti Passport (évaluation de compétence)
  */
 export async function generatePassportQuestion(
