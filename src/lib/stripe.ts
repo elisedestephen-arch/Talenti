@@ -4,9 +4,11 @@ if (!process.env.STRIPE_SECRET_KEY) {
   console.warn("⚠️  STRIPE_SECRET_KEY is not set. Stripe will not work.");
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-03-31.chameleon.2" as any,
-});
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2025-03-31.chameleon.2" as any,
+    })
+  : (null as unknown as Stripe);
 
 export const PRICES = {
   premium_monthly: { price: 399, id: process.env.STRIPE_PREMIUM_MONTHLY_PRICE_ID || "premium_monthly" },
