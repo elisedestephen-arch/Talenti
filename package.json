@@ -12,12 +12,13 @@
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "better-sqlite3": "^11.8.1",
+    "better-sqlite3": "^12.10.0",
     "jsonwebtoken": "^9.0.2",
     "next": "^15.3.1",
     "openai": "^4.86.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "sql.js": "^1.14.1",
     "stripe": "^22.2.0",
     "uuid": "^11.1.0"
   },
