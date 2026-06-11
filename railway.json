@@ -1,8 +1,6 @@
 {
   "build": {
-    "command": "npm install && npm run build:railway",
-    "public": ".next",
-    "builder": "nixpacks",
+    "buildCommand": "npm run build:railway",
     "watchPatterns": ["src/**/*", "public/**/*", "package.json"]
   },
   "deploy": {
