@@ -1,7 +1,5 @@
-export default function ({ loadCommand }) {
-  return {
-    plugins: {
-      '@tailwindcss/postcss': {},
-    },
-  };
-}
+export default {
+  plugins: {
+    '@tailwindcss/postcss': {},
+  },
+};

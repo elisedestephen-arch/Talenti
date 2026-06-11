@@ -219,3 +219,40 @@ Réponds UNIQUEMENT au format JSON :
     return { question: "Parlez-moi de votre expérience professionnelle." };
   }
 }
+
+/**
+ * Évalue les compétences d'un candidat pour le Talenti Passport
+ */
+export async function assessPassport(
+  skills: string,
+  frenchLevel: string,
+  englishLevel: string
+): Promise<{
+  french_level: string;
+  english_level: string;
+  skills_verified: string;
+  overall_score: number;
+  feedback: string;
+}> {
+  const prompt = `Tu es un évaluateur professionnel de compétences. Évalue ce candidat :\n\nCompétences déclarées : ${skills}\nNiveau de français déclaré : ${frenchLevel}\nNiveau d'anglais déclaré : ${englishLevel}\n\nÉvalue et certifie les niveaux réels et les compétences. Sois objectif et constructif.\n\nRéponds UNIQUEMENT au format JSON :\n{"french_level": "B1", "english_level": "A2", "skills_verified": "compétences vérifiées séparées par virgule", "overall_score": 65, "feedback": "Commentaire constructif en français..."}`;
+
+  try {
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+      response_format: { type: "json_object" },
+    });
+
+    const content = response.choices[0]?.message?.content || "{}";
+    return JSON.parse(content);
+  } catch {
+    return {
+      french_level: frenchLevel,
+      english_level: englishLevel,
+      skills_verified: skills,
+      overall_score: 50,
+      feedback: "Erreur lors de l'évaluation",
+    };
+  }
+}
