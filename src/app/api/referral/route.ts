@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/auth";
 import db from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const user = getUserFromRequest(req);
@@ -43,7 +45,13 @@ export async function GET(req: NextRequest) {
         joinedAt: u.created_at,
       })),
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json(
+        { referralCode: null, referralLink: null, referralCount: 0, referralCredits: 0, freeUntil: null, referredUsers: [] },
+        { status: 503 }
+      );
+    }
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

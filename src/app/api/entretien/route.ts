@@ -4,6 +4,8 @@ import db from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
 import { simulateEntretien } from "@/lib/openai";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const user = getUserFromRequest(req);
   if (!user) {
@@ -21,7 +23,10 @@ export async function POST(req: NextRequest) {
     ).run(id, user.userId, poste, JSON.stringify([...(historique || []), result.question]));
 
     return NextResponse.json({ id, ...result });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json({ error: "Service temporairement indisponible" }, { status: 503 });
+    }
     console.error(error);
     return NextResponse.json({ error: "Erreur lors de la simulation" }, { status: 500 });
   }

@@ -4,26 +4,28 @@ import db from "@/lib/db";
 import { getUserFromRequest } from "@/lib/auth";
 import { generateCV } from "@/lib/openai";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const user = getUserFromRequest(req);
   if (!user) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  // Vérifier les limites pour les utilisateurs gratuits
-  if (user.plan === "free") {
-    const count = db
-      .prepare("SELECT COUNT(*) as count FROM cvs WHERE user_id = ?")
-      .get(user.userId) as any;
-    if (count.count >= 1) {
-      return NextResponse.json(
-        { error: "Limite gratuite atteinte. Passez à Premium pour des CV illimités." },
-        { status: 403 }
-      );
-    }
-  }
-
   try {
+    // Vérifier les limites pour les utilisateurs gratuits
+    if (user.plan === "free") {
+      const count = db
+        .prepare("SELECT COUNT(*) as count FROM cvs WHERE user_id = ?")
+        .get(user.userId) as any;
+      if (count.count >= 1) {
+        return NextResponse.json(
+          { error: "Limite gratuite atteinte. Passez à Premium pour des CV illimités." },
+          { status: 403 }
+        );
+      }
+    }
+
     const { name, studies, experience, languages, skills, format } = await req.json();
 
     const content = await generateCV({
@@ -41,7 +43,10 @@ export async function POST(req: NextRequest) {
     ).run(id, user.userId, `CV - ${format}`, format || "moderne", content);
 
     return NextResponse.json({ id, content });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json({ error: "Service temporairement indisponible" }, { status: 503 });
+    }
     console.error(error);
     return NextResponse.json({ error: "Erreur lors de la génération du CV" }, { status: 500 });
   }
@@ -53,6 +58,14 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
 
-  const cvs = db.prepare("SELECT id, title, format, created_at FROM cvs WHERE user_id = ? ORDER BY created_at DESC").all(user.userId);
-  return NextResponse.json(cvs);
+  try {
+    const cvs = db.prepare("SELECT id, title, format, created_at FROM cvs WHERE user_id = ? ORDER BY created_at DESC").all(user.userId);
+    return NextResponse.json(cvs);
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json([], { status: 503 });
+    }
+    console.error(error);
+    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+  }
 }

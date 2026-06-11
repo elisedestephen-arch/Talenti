@@ -3,6 +3,8 @@ import { getUserFromRequest } from "@/lib/auth";
 import stripe, { PRICES } from "@/lib/stripe";
 import db from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const user = getUserFromRequest(req);
@@ -74,7 +76,10 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json({ error: "Service temporairement indisponible" }, { status: 503 });
+    }
     console.error("Stripe checkout error:", error);
     return NextResponse.json({ error: "Erreur lors de la création du paiement" }, { status: 500 });
   }

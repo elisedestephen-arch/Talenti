@@ -3,6 +3,8 @@ import { getUserFromRequest } from "@/lib/auth";
 import db from "@/lib/db";
 import stripe from "@/lib/stripe";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const user = getUserFromRequest(req);
@@ -26,7 +28,13 @@ export async function GET(req: NextRequest) {
       referralCode: dbUser.referral_code,
       referralCount: dbUser.referral_count || 0,
     });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json(
+        { plan: "free", subscriptionStatus: "inactive", subscriptionEnd: null, referralCode: null, referralCount: 0 },
+        { status: 503 }
+      );
+    }
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
@@ -74,7 +82,10 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "Action invalide" }, { status: 400 });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json({ error: "Service temporairement indisponible" }, { status: 503 });
+    }
     console.error(error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getUserFromRequest } from "@/lib/auth";
 import { matchUserJobs, getUserJobs, getRecentJobs } from "@/lib/jobs";
 
+export const dynamic = "force-dynamic";
+
 // GET /api/jobs/mine — Récupérer les offres recommandées pour l'utilisateur
 export async function GET(req: NextRequest) {
   const user = getUserFromRequest(req);
@@ -24,7 +26,10 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ jobs });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.code === "SQLITE_BUSY") {
+      return NextResponse.json({ jobs: [] }, { status: 503 });
+    }
     console.error(error);
     return NextResponse.json({ error: "Erreur" }, { status: 500 });
   }
