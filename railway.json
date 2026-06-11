@@ -1,11 +1,13 @@
 {
   "build": {
-    "command": "npm run build",
-    "public": ".next"
+    "command": "npm install && npm run build",
+    "builder": "nixpacks",
+    "watchPatterns": ["src/**/*", "public/**/*"]
   },
   "deploy": {
     "startCommand": "npm run start",
     "healthcheckPath": "/",
-    "healthcheckTimeout": 100
+    "healthcheckTimeout": 120,
+    "restartPolicyType": "always"
   }
 }

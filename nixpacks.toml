@@ -1,0 +1,8 @@
+[phases.install]
+nixPkgs = ["python3", "make", "gcc", "g++", "pkg-config"]
+
+[phases.setup]
+nixPkgs = ["python3", "make", "gcc", "g++"]
+
+[phases.build]
+cmds = ["npm install", "npm run build"]
