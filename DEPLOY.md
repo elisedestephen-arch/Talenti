@@ -1,102 +1,117 @@
 # 🚀 Déploiement de TalentAfrique IA
 
-## Choix d'hébergement
+## Déploiement Railway (recommandé)
 
-TalentAfrique utilise **SQLite** comme base de données. Cela fonctionne bien sur un serveur classique (VPS) mais **pas sur Vercel** (sans adaptation).
+### Prérequis
+1. Compte [Railway.app](https://railway.app) (via GitHub)
+2. Repo GitHub avec le code
 
-### Option A (recommandée) : Railway — €5/mois
+### Étapes de déploiement
 
-Railway héberge l'app complète avec stockage persistant. SQLite fonctionne parfaitement.
+1. **Poussez le code sur GitHub**
+   ```bash
+   git push origin main
+   ```
 
-**Étapes :**
-1. Crée un compte sur [railway.app](https://railway.app) (GitHub login)
-2. Installe GitHub CLI ou pousse le code sur GitHub
-3. Sur Railway, clique "New Project" → "Deploy from GitHub repo"
-4. Sélectionne `talentafrique-ia`
-5. Va dans l'onglet **Variables** et ajoute :
-   - `OPENAI_API_KEY` = ta clé OpenAI
-   - `JWT_SECRET` = une chaîne secrète longue
-   - `WHATSAPP_API_KEY` = ton token Meta (optionnel pour commencer)
-   - `WHATSAPP_PHONE_ID` = ton Phone ID (optionnel pour commencer)
-6. Railway build et déploie automatiquement
-7. Ton site est accessible sur `talentafrique-ia.up.railway.app`
+2. **Créez le projet Railway**
+   - Allez sur [railway.app/dashboard](https://railway.app/dashboard)
+   - Cliquez "New Project" → "Deploy from GitHub repo"
+   - Sélectionnez le dépôt Talenti
 
-### Option B : VPS (DigitalOcean / Hetzner) — €4-6/mois
+3. **Ajoutez les variables d'environnement** (onglet Variables) :
+   | Variable | Requis | Description |
+   |----------|--------|-------------|
+   | `JWT_SECRET` | ✅ | Secret JWT (générez avec `openssl rand -hex 32`) |
+   | `OPENAI_API_KEY` | ✅ | Clé API OpenAI |
+   | `NEXT_PUBLIC_URL` | ✅ | URL de l'app (ex: `https://talenti.up.railway.app`) |
+   | `STRIPE_SECRET_KEY` | ❌ | Pour les abonnements Stripe |
+   | `STRIPE_WEBHOOK_SECRET` | ❌ | Webhook Stripe |
+   | `WHATSAPP_API_KEY` | ❌ | Pour les notifications WhatsApp |
+   | `WHATSAPP_PHONE_ID` | ❌ | ID téléphone WhatsApp |
 
-Un petit VPS avec Ubuntu 22.04.
+4. **Railway build et déploie automatiquement**
+   - Le build utilise `NODE_OPTIONS=--max-old-space-size=1024` pour éviter les OOM
+   - `better-sqlite3` est compilé via Nixpacks (build-essential automatique)
 
-**Étapes :**
+5. **Votre site est en ligne** sur `https://talenti.up.railway.app`
+
+### Résolution des problèmes Railway
+
+#### ❌ Build échoue (OOM / SIGBUS)
 ```bash
-# 1. Se connecter au VPS
-ssh root@ton-serveur
-
-# 2. Installer Node.js
-curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-apt install -y nodejs
-
-# 3. Cloner le projet
-git clone https://github.com/ton-compte/talentafrique-ia.git
-cd talentafrique-ia
-
-# 4. Installer et build
-npm install
-npm run build
-
-# 5. Créer le fichier .env avec tes clés
-nano .env
-
-# 6. Installer PM2 (gestionnaire de processus)
-npm install -g pm2
-pm2 start npm --name "talentafrique" -- start
-pm2 save
-pm2 startup
+# Dans railway.json, le build utilise build:railway qui limite la mémoire
+# Si le build échoue encore, réduisez à 768MB :
+NODE_OPTIONS=--max-old-space-size=768
 ```
 
-### Option C : Vercel + Turso (gratuit)
+#### ❌ better-sqlite3 ne compile pas
+- Vérifiez que `nixpacks.toml` est présent à la racine
+- Railway installe automatiquement python3, gcc, g++, make via Nixpacks
+- La commande `postinstall` rebuild better-sqlite3 automatiquement
 
-Si tu veux Vercel, il faut remplacer SQLite par Turso (SQLite compatible cloud).
+#### ❌ Healthcheck échoue
+- Le healthcheck timeout est configuré à 120s dans railway.json
+- Si votre app met plus de temps à démarrer, augmentez cette valeur
 
-**Adaptation nécessaire :**
-1. Crée un compte sur [turso.tech](https://turso.tech)
-2. Remplace `better-sqlite3` par `@libsql/client`
-3. Modifie `src/lib/db.ts` pour utiliser Turso
-4. Déploie sur Vercel avec `vercel --prod`
+#### ❌ Port non trouvé
+- Railway définit automatiquement `PORT` et Next.js l'écoute
+- Vérifiez que votre app écoute sur `0.0.0.0` (pas localhost)
 
----
+### Structure des fichiers de déploiement
 
-## Nom de domaine (optionnel)
-
-Une fois déployé, tu peux ajouter un nom de domaine :
-- **Railway** : Settings → Domains → Custom Domain
-- **Vercel** : Domains → Add
-- **VPS** : Configure Nginx + Cloudflare
-
-Exemples : `talentafrique.com` ou `talentafrique.africa`
-
----
-
-## Configuration minimale pour tester
-
-Avant le déploiement, configure au moins :
-```env
-OPENAI_API_KEY=ta-cle-openai
-JWT_SECRET=un-secret-tres-long-aleatoire
+```
+├── railway.json          # Configuration Railway
+├── nixpacks.toml         # Outils de compilation (better-sqlite3)
+├── next.config.ts        # Configuration Next.js
+└── DEPLOY.md             # Ce fichier
 ```
 
-Les notifications WhatsApp peuvent attendre (le site fonctionne sans).
-
 ---
 
-## Vérifier que tout marche
+## Installation locale (développement)
 
 ```bash
-# En local
+# 1. Cloner
+git clone https://github.com/elisedestephen-arch/Talenti.git
+cd Talenti
+
+# 2. Variables d'environnement
+cp .env.example .env
+# Éditez .env avec vos clés (au moins JWT_SECRET et OPENAI_API_KEY)
+
+# 3. Installer et lancer
 npm install
 npm run dev
 # → http://localhost:3000
 
-# Test API
-curl http://localhost:3000/api/auth/register -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test","email":"test@test.com","password":"123456"}'
+# 4. Build production
+npm run build
+npm start
+```
+
+---
+
+## Déploiement VPS alternatif
+
+```bash
+# 1. VPS avec Ubuntu 22.04 (DigitalOcean / Hetzner)
+ssh root@ton-serveur
+
+# 2. Installer Node.js 20+
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+apt install -y nodejs build-essential python3
+
+# 3. Cloner et déployer
+git clone https://github.com/elisedestephen-arch/Talenti.git
+cd Talenti
+cp .env.example .env
+nano .env  # Configurez vos clés
+npm install
+npm run build
+
+# 4. Lancer avec PM2
+npm install -g pm2
+pm2 start npm --name "talenti" -- start
+pm2 save
+pm2 startup
 ```

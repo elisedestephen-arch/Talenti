@@ -1,13 +1,16 @@
 {
   "build": {
-    "command": "npm install && npm run build",
+    "command": "npm install && npm run build:railway",
+    "public": ".next",
     "builder": "nixpacks",
-    "watchPatterns": ["src/**/*", "public/**/*"]
+    "watchPatterns": ["src/**/*", "public/**/*", "package.json"]
   },
   "deploy": {
     "startCommand": "npm run start",
     "healthcheckPath": "/",
     "healthcheckTimeout": 120,
-    "restartPolicyType": "always"
+    "numReplicas": 1,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
   }
 }

@@ -1,8 +1,16 @@
-[phases.install]
-nixPkgs = ["python3", "make", "gcc", "g++", "pkg-config"]
+# Nixpacks configuration for Railway deployment
+# Ensures native modules (better-sqlite3) compile correctly
+
+providers = ["node"]
 
 [phases.setup]
-nixPkgs = ["python3", "make", "gcc", "g++"]
+nixPkgs = ["python3", "nodejs", "gcc", "g++", "make", "pkg-config"]
+
+[phases.install]
+cmds = ["npm ci --only=production --ignore-scripts", "npm rebuild better-sqlite3"]
 
 [phases.build]
-cmds = ["npm install", "npm run build"]
+cmds = ["npm run build:railway"]
+
+[start]
+cmd = "npm run start"
