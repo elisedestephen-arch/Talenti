@@ -1,4 +1,4 @@
-import { ChatMessage, CSResponse } from './cs.types';
+import type { ChatMessage, CSResponse } from './cs.types.js';
 
 export class CSChatbotService {
   async generateResponse(messages: ChatMessage[], context?: any): Promise<CSResponse> {

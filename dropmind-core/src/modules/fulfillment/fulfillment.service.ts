@@ -1,4 +1,4 @@
-import { FulfillmentOrder, FulfillmentItem } from './fulfillment.types';
+import type { FulfillmentOrder, FulfillmentItem } from './fulfillment.types';
 import { SupplierService } from './supplier.service';
 
 export class FulfillmentService {

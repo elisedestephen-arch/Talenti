@@ -1,4 +1,4 @@
-import { AdCampaign, CreateCampaignInput, CampaignMetrics } from './marketing.types';
+import type { AdCampaign, CreateCampaignInput, CampaignMetrics } from './marketing.types.js';
 
 export class TikTokAdsService {
   async createCampaign(input: CreateCampaignInput): Promise<AdCampaign> {

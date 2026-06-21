@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { TikTokTrendData } from './product-research.types';
+import type { TikTokTrendData } from './product-research.types';
 
 export class TikTokService {
   async getTrendingHashtags(region: string = 'US'): Promise<TikTokTrendData[]> {

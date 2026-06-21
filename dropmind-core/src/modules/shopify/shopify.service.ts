@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ShopifyCredentials, ShopifyProduct, ShopifyOrder } from './shopify.types';
+import type { ShopifyCredentials, ShopifyProduct, ShopifyOrder } from './shopify.types.js';
 import { 
   CREATE_PRODUCT_MUTATION, 
   GET_ORDERS_QUERY, 

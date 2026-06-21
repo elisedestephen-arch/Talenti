@@ -1,4 +1,4 @@
-import { CSConversation, ChatMessage, CSResponse } from './cs.types';
+import type { CSConversation, ChatMessage, CSResponse } from './cs.types.js';
 import { CSChatbotService } from './chatbot.service';
 
 export class CustomerService {

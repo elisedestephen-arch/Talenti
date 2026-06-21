@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GoogleTrendData } from './product-research.types';
+import type { GoogleTrendData } from './product-research.types';
 
 export class GoogleTrendsService {
   async getKeywordInterest(keyword: string): Promise<GoogleTrendData> {

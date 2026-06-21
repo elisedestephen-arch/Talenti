@@ -1,4 +1,4 @@
-import { TrendingProduct, ProductScoringFactors } from './product-research.types';
+import type { TrendingProduct, ProductScoringFactors } from './product-research.types.js';
 import { TikTokService } from './tiktok.service';
 import { GoogleTrendsService } from './google-trends.service';
 

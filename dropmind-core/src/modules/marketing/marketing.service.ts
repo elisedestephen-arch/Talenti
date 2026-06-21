@@ -1,4 +1,4 @@
-import { AdCampaign, CreateCampaignInput, AdCreative } from './marketing.types';
+import type { AdCampaign, CreateCampaignInput, AdCreative } from './marketing.types.js';
 import { MetaAdsService } from './meta-ads.service';
 import { TikTokAdsService } from './tiktok-ads.service';
 

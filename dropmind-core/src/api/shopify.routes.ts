@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import axios from 'axios';
-import { ShopifyService } from '../modules/shopify/shopify.service';
+import { ShopifyService } from '../modules/shopify/shopify.service.js';
 
 const router = Router();
 const shopifyService = new ShopifyService();

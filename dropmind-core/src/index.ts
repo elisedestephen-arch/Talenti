@@ -1,10 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import shopifyRoutes from './api/shopify.routes';
-import productResearchRoutes from './api/product-research.routes';
-import marketingRoutes from './api/marketing.routes';
-import fulfillmentRoutes from './api/fulfillment.routes';
-import csRoutes from './api/customer-service.routes';
+import shopifyRoutes from './api/shopify.routes.js';
+import productResearchRoutes from './api/product-research.routes.js';
+import marketingRoutes from './api/marketing.routes.js';
+import fulfillmentRoutes from './api/fulfillment.routes.js';
+import csRoutes from './api/customer-service.routes.js';
 
 dotenv.config();
 

@@ -1,4 +1,4 @@
-import { FulfillmentOrder, FulfillmentItem } from './fulfillment.types';
+import type { FulfillmentOrder, FulfillmentItem } from './fulfillment.types';
 
 export class SupplierService {
   async placeOrder(supplierId: string, items: FulfillmentItem[]): Promise<string> {
